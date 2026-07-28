@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial‑scale=1.0">
+    <title>藏茧待醒</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border‑box;
+        }
+        body {
+            min‑height: 100vh;
+            background: #0f0f0f;
+            color: #ddd;
+            font‑family: "Noto Serif SC", serif;
+            display: flex;
+            flex‑direction: column;
+            justify‑content: center;
+            align‑items: center;
+            padding: 24px 12px;
+        }
+
+        /* 轮播容器 */
+        .carousel‑wrap {
+            width: 100%;
+            max‑width: 860px;
+            overflow: hidden;
+            touch‑action: pan‑y;
+            user‑select: none;
+            border‑radius: 4px;
+        }
+        .carousel‑track {
+            display: flex;
+            transition: transform 0.35s ease‑out;
+        }
+        .slide‑item {
+            flex‑shrink: 0;
+            width: 100%;
+        }
+        .slide‑item img {
+            width: 100%;
+            display: block;
+            object‑fit: contain;
+        }
+
+        /* 小圆点指示器 */
+        .dots {
+            display: flex;
+            gap: 10px;
+            margin‑top: 18px;
+        }
+        .dot {
+            width: 8px;
+            height: 8px;
+            border‑radius: 50%;
+            background‑color: #444;
+        }
+        .dot.active {
+            background‑color: #eeeeee;
+        }
+
+        /* 底部文字 */
+        .title‑text {
+            margin‑top: 40px;
+            font‑size: 1.4rem;
+            letter‑spacing: 0.8em;
+            color: #cccccc;
+        }
+
+        @media (prefers‑color‑scheme: light) {
+            body {
+                background‑color: #f4f4f4;
+                color: #222;
+            }
+            .dot {
+                background‑color: #bbbbbb;
+            }
+            .dot.active {
+                background‑color: #222222;
+            }
+            .title‑text {
+                color: #333333;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="carousel‑wrap">
+        <div class="carousel‑track" id="track">
+            <div class="slide‑item">
+                <img src="img1.jpg" alt="壳">
+            </div>
+            <div class="slide‑item">
+                <img src="img2.jpg" alt="壳">
+            </div>
+            <div class="slide‑item">
+                <img src="img3.jpg" alt="壳">
+            </div>
+        </div>
+    </div>
+
+    <div class="dots" id="dots"></div>
+
+    <div class="title‑text">藏茧待醒</div>
+
+<script>
+const track = document.getElementById('track');
+const dotsWrap = document.getElementById('dots');
+const slideCount = 3;
+
+let currentIndex = 0;
+let startX = 0;
+let isDrag = false;
+
+// 创建圆点
+for(let i=0;i<slideCount;i++){
+    const d = document.createElement('span');
+    d.className = 'dot' + (i===0 ? ' active':'');
+    dotsWrap.appendChild(d);
+    d.onclick = ()=> goSlide(i);
+}
+const dots = document.querySelectorAll('.dot');
+
+function updateDots(){
+    dots.forEach((d,i)=>{
+        d.classList.toggle('active', i === currentIndex);
+    })
+}
+
+function goSlide(idx){
+    if(idx < 0) idx = slideCount‑1;
+    if(idx >= slideCount) idx = 0;
+    currentIndex = idx;
+    track.style.transform = `translateX(${-100 * currentIndex}%)`;
+    updateDots();
+}
+
+// 触摸滑动（手机）
+track.addEventListener('touchstart', e=>{
+    startX = e.touches[0].clientX;
+    isDrag = true;
+})
+track.addEventListener('touchend', e=>{
+    if(!isDrag) return;
+    const endX = e.changedTouches[0].clientX;
+    const diff = endX - startX;
+    if(diff > 40) goSlide(currentIndex‑1);
+    if(diff < ‑40) goSlide(currentIndex+1);
+    isDrag = false;
+})
+
+// 鼠标拖拽（电脑）
+track.addEventListener('mousedown',e=>{
+    startX = e.clientX;
+    isDrag = true;
+    track.style.cursor = "grabbing";
+})
+window.addEventListener('mouseup',e=>{
+    if(!isDrag) return;
+    const diff = e.clientX‑startX;
+    if(diff>60) goSlide(currentIndex‑1);
+    if(diff<‑60) goSlide(currentIndex+1);
+    isDrag = false;
+    track.style.cursor = "grab";
+})
+track.style.cursor = "grab";
+</script>
+</body>
+</html>
